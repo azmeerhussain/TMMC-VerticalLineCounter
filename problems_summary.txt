@@ -1,38 +1,18 @@
-Summary of Unexpected Problems
-==============================
+Problems I ran into
 
-1. Lines are thick, not 1 pixel wide
-   The lines are blocks tens of pixels wide, so counting black columns
-   would give the line width, not the number of lines. Instead the app
-   counts runs of black pixels: a new line is only counted at a
-   white-to-black change.
+1. Lines are thick, so I couldn't just count black columns. I count each
+   run of black pixels in a row as one line instead.
 
-2. img_3.jpg is completely black
-   The entire image is one line covering the full width. An approach
-   that only counts white-to-black edges would return 0 because there
-   is no white pixel before the line. The fix is to also count a line
-   when the very first pixel of the row is black.
+2. img_3 is completely black, and the first line in img_4 touches the
+   left edge. Counting only white-to-black changes missed these, so a
+   black pixel at x = 0 also counts as the start of a line.
 
-3. A line touching the left edge (img_4.jpg)
-   The first line in img_4.jpg starts at x = 0. Solution 2 also handles
-   this case.
+3. JPG compression adds grey pixels around the line edges, so checking
+   for pure black (0,0,0) isn't reliable. I use a brightness threshold
+   of 128 instead.
 
-4. JPG compression noise
-   JPG is a lossy format, so pixels near the line edges can come out as
-   shades of grey instead of pure black or white. Checking for an exact
-   black value (0, 0, 0) would be unreliable. Each pixel is converted to
-   a brightness value and compared against a threshold (128, the
-   midpoint) to decide if it is black.
+4. Some lines don't reach the top or bottom of the image (img_2). Since
+   every line crosses both halves, I scan the middle row.
 
-5. Which row to scan
-   Lines do not always reach the top or bottom edge (img_2.jpg), so
-   scanning the first or last row would miss them. Because every line
-   is guaranteed to exist in both the top and bottom half as one
-   continuous line, it must cross the middle row. Scanning only the
-   middle row is both correct and fast (one pass over the width).
-
-6. ImageIO does not throw for non-image files
-   ImageIO.read() returns null instead of throwing an exception when a
-   file is not a recognised image. Without a check, this would cause a
-   NullPointerException later. The app checks for null and prints a
-   clear error message.
+5. ImageIO.read() returns null instead of throwing for non-image files,
+   so I check for null to avoid a crash.
