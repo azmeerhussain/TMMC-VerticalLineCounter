@@ -12,7 +12,7 @@ Run:
 Prints the number of vertical lines. Prints an error message if the
 argument count is wrong or the file can't be read.
 
-To test all 4 images, run run_tests.bat. Expected output:
+Expected results for the provided images (in test-images):
     img_1.jpg: 1
     img_2.jpg: 3
     img_3.jpg: 1
