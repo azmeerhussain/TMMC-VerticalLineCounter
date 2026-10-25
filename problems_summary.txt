@@ -1,0 +1,38 @@
+Summary of Unexpected Problems
+==============================
+
+1. Lines are thick, not 1 pixel wide
+   The lines are blocks tens of pixels wide, so counting black columns
+   would give the line width, not the number of lines. Instead the app
+   counts runs of black pixels: a new line is only counted at a
+   white-to-black change.
+
+2. img_3.jpg is completely black
+   The entire image is one line covering the full width. An approach
+   that only counts white-to-black edges would return 0 because there
+   is no white pixel before the line. The fix is to also count a line
+   when the very first pixel of the row is black.
+
+3. A line touching the left edge (img_4.jpg)
+   The first line in img_4.jpg starts at x = 0. Solution 2 also handles
+   this case.
+
+4. JPG compression noise
+   JPG is a lossy format, so pixels near the line edges can come out as
+   shades of grey instead of pure black or white. Checking for an exact
+   black value (0, 0, 0) would be unreliable. Each pixel is converted to
+   a brightness value and compared against a threshold (128, the
+   midpoint) to decide if it is black.
+
+5. Which row to scan
+   Lines do not always reach the top or bottom edge (img_2.jpg), so
+   scanning the first or last row would miss them. Because every line
+   is guaranteed to exist in both the top and bottom half as one
+   continuous line, it must cross the middle row. Scanning only the
+   middle row is both correct and fast (one pass over the width).
+
+6. ImageIO does not throw for non-image files
+   ImageIO.read() returns null instead of throwing an exception when a
+   file is not a recognised image. Without a check, this would cause a
+   NullPointerException later. The app checks for null and prints a
+   clear error message.
